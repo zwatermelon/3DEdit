@@ -1,0 +1,769 @@
+<html>
+<head>
+<title>3d.html</title>
+<style>
+body 
+{
+	font-family: arial;	font-weight: bold;
+	/*background-color: #ffffff;*/
+	margin: 0px;
+	overflow: hidden;
+}
+
+#app{
+	position: absolute;
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+}
+.head{
+	height : 60px;
+	background-color : #888888;
+}
+
+#head-left{
+	position: absolute;
+	left: 25px;
+	top: 7px;
+}
+#head-center{
+	display: block;
+	position: absolute;
+	left: 90px;
+	right: 270px;
+	top: 10px;
+	height: 40px;
+	/*background-color : #ff8745;*/
+}
+#head-right{
+	position: absolute;
+	top: 15px;
+	right: 0;
+	width: 240px;
+	padding-left: 10px;
+	border-left: 1px solid rgba(0,0,0,0.1);
+	overflow: hidden;
+	margin: 0;
+	/*background-color : #ff0000;*/
+}
+
+#c-main{
+	left: 10px;
+	right: 260px;
+	top: 60px;
+	bottom: 10px;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+	display: block;
+	position: absolute;
+	/*background-color : #654f5f;*/
+}
+#c-right{
+	font-size: 12px;
+	line-height: 1.6em;
+	padding: 0;
+	position: absolute;
+	margin: 0 auto;
+	right: 0;
+	width: 250px;
+	top: 60px;
+	bottom: 0;
+	color: #202020;
+	overflow: auto;
+	background-color : #666666;
+}
+
+#view3d {
+	height : 100%;
+	width : 100%;
+}
+
+.shape-image{
+	display: inline-block;
+	border: 1px solid rgba(0,0,0,0.0);
+	margin: 0 5px 5px 5px;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	position : relative;
+}
+.shape-caption{
+	display: block;
+	text-align: center;
+	margin-top: -12px;
+	color: #777;
+}
+
+
+.category-title{
+	-webkit-user-select: none;
+	margin: 0;
+	padding: .5em 1.0em;
+	border-top: 1px solid rgba(32,16,0,0.2);
+	cursor: pointer;
+}
+.category-title::before{
+	color: rgba(32,16,0,0.2);
+	display: inline-block;
+	width: 1.4em;
+	content: "▼";
+}
+
+#menu-edit{
+	font-size: 15px;
+	color: #555;
+	display: inline-block;
+	height: 24px;
+	line-height: 24px;
+	padding: 5px 15px;
+	margin-top: 8px;
+	border: 1px solid rgba(0,0,0,0.0);
+	border-right: 1px solid rgba(0,0,0,0.1);
+	border-radius: 1px;
+}
+.top-popup {
+	position: absolute;
+	left: 0;
+	top: 45px;
+	width: 200px;
+	z-index: 10;
+	color: #656151;
+	background: #fff;
+	border-radius: 2px;
+	-webkit-box-shadow: rgba(0,0,0,0.2) 0 3px 6px;
+	-moz-box-shadow: rgba(0,0,0,0.3) 0 3px 6px;
+	box-shadow: rgba(0,0,0,0.3) 0 3px 6px;
+	margin: 0;
+	padding: 0;
+	list-style-type: none;
+	font-size: 15px;
+	display : none;
+}
+.top-popup a {
+display: block;
+padding: 4px 16px;
+line-height: 20px;
+text-decoration: none;
+}
+ol, ul {
+list-style: none;
+
+}
+.pane-shapes-info{
+	margin: 0px 30px;
+	color : #aaaaaa;
+}
+</style>
+</head>
+<body>
+<div id = "app">
+	<!--top -->	
+	<!-- top center -->
+	<div id = "head-center" class = "head">
+		<button id = "save" style = "display : none">Edit</button>
+
+		<div style = "float:left;line-height : 50px ;height : 52;width : 192;background-color : #d7344a">
+			<!-- edit-->
+			<span style="position:relative; float:left;">
+					<!--<a id="menu-edit" data-dropdown="" href="#" class="top-item">Edit</a> -->
+					<a id="menu-edit" data-dropdown="" href="#" class="top-item">Save</a> 
+					<div id="menu-edit-popup" class="top-popup" style="width:150px;">
+						<ul>
+							<li><a id="copy-selection" href="#" class="">Copy</a></li>
+							<li><a id="paste-selection" href="#">Paste</a></li>
+							<li><a id="duplicate-selection" href="#" class="">Duplicate</a></li>
+							<li><a id="delete-selection" href="#" class="">Delete</a></li>
+						</ul>
+					</div>
+			</span>
+		</div>
+		<div style = "float:right;line-height : 50px;background-color : #4a985a" >
+		</div>
+	</div>
+	<!-- top right -->
+	<div id = "head-right" class = "head">
+		
+	</div>
+
+	<!-- center -->
+	<!-- center container -->
+	<div id = "c-main">
+		<div id = "view3d"></div>
+	</div>
+
+	<!-- center right -->
+	<div id = "c-right">
+		<!-- import begin -->
+		<h3 class = "category-title">
+			Import
+		</h3>
+		<div class = "shape-image-c">
+			<p class="pane-shapes-info">3D shapes from your computer or from another web site.The file should be in STL format for 3D shapes.</p>
+			<!--<div style="z-index: 21; position:relative; top:-4px; left:100px; margin-bottom:-15px;">
+				<input class="btn down" type="button" value="File" style="height: 23px; font-size: 11px; border-top-right-radius: 0px; border-bottom-right-radius: 0px; margin-right: 0px; position: relative; top: 1px;">
+				<input class="btn" type="button" value="URL" style="height: 23px; font-size: 11px; border-top-left-radius: 0px; border-bottom-left-radius: 0px; margin-left: -1px; position: relative; top: 0px;">
+			</div> -->
+			<!--<input id="shape-upload-url" type="text" name="url" autocomplete="off" style="font-size: 12px; width: 195px; padding: 4px; margin-left: 5px; margin-right: 10px; display: none;"> -->
+			<form id="import-form" enctype="multipart/form-data">
+				<div style="padding: 15px 3px 3px; margin-bottom: 5px; margin-left: -6px; margin-right: -8px;">
+					<input id="shape-upload-file" type="file" onchange="upModel(this);" name="shape" style="font-size: 12px; width: 200px; padding: 4px;margin-left : 40px">
+					<div class="pane-shapes-info" class="notification" style="padding: 4px 8px; margin-bottom: 5px;">The shape must be in .STL or .SVG format.
+					</div>
+					<div style="text-align:right; margin-right : 30px">
+						<input class="btn disabled" id="shape-upload-submit" type="button" value="Import">
+					</div>
+					<div id="shape-upload-progress" style="display: none; margin: 0px 0px 0px 8px; position: relative; top: 4px;">Uploading...</div>
+				</div>
+			</form>
+		</div>
+		<!-- import end -->
+		<h3 class = "category-title">
+			Shape Generators
+		</h3>
+		<div class = "shape-image-c">
+			<div class = "shape-image" id = "but_legacy_01">
+				<img class = "image" src = "img/01.png" >
+				<!--<canvas width = "100" height = "100"></canvas> -->
+				<span class = "shape-caption">BOX</span>
+			</div>
+			<div class = "shape-image" id = "but_legacy_02">
+				<img class = "image" src = "img/02.png" >
+				<!--<canvas width = "100" height = "100"></canvas> -->
+				<span class = "shape-caption">Cylinder</span>
+			</div>
+			<div class = "shape-image" id = "but_legacy_03">
+				<img class = "image" src = "img/03.png" >
+				<!--<canvas width = "100" height = "100"></canvas> -->
+				<span class = "shape-caption">Pyramid</span>
+			</div>
+			<div class = "shape-image" id = "but_legacy_04">
+				<img class = "image" src = "img/04.png" >
+				<!--<canvas width = "100" height = "100"></canvas> -->
+				<span class = "shape-caption">Roof</span>
+			</div>
+		</div>
+		<h3 class = "category-title">
+			Number
+		</h3>
+		<div class = "shape-image-c">
+			<div class = "shape-image" id = "but_legacy_01">
+				<img class = "image" src = "img/01.png" >
+				<!--<canvas width = "100" height = "100"></canvas> -->
+				<span class = "shape-caption">BOX</span>
+			</div>
+			<div class = "shape-image" id = "but_legacy_02">
+				<img class = "image" src = "img/02.png" >
+				<!--<canvas width = "100" height = "100"></canvas> -->
+				<span class = "shape-caption">Cylinder</span>
+			</div>
+			<div class = "shape-image" id = "but_legacy_03">
+				<img class = "image" src = "img/03.png" >
+				<!--<canvas width = "100" height = "100"></canvas> -->
+				<span class = "shape-caption">Pyramid</span>
+			</div>
+			<div class = "shape-image" id = "but_legacy_04">
+				<img class = "image" src = "img/04.png" >
+				<!--<canvas width = "100" height = "100"></canvas> -->
+				<span class = "shape-caption">Roof</span>
+			</div>
+		</div>
+	</div>
+</div>
+<div id = "head-left" class = "head">
+	<img src = 'img/logo-viste.png' alt = "heimai">
+</div>
+
+<!--<div id="container"></div> -->
+<script type = "text/javascript" src = "js/three.min.js"></script>
+<script type = "text/javascript" src = "js/TransformControls.js"></script>
+<script type = "text/javascript" src = "js/THREEx.KeyboardState.js"></script>
+<script type = "text/javascript" src = "js/HM.3DH.Controls.js"></script>
+<script type = "text/javascript" src = "js/FileSaver.js"></script>
+<script type = "text/javascript" src = "js/STLExporter.js"></script>
+<script type = "text/javascript" src = "js/STLLoader.js"></script>
+<script type = "text/javascript" src = "js/ObjExporter.js"></script>
+
+<script type = "text/javascript" src = "js/jquery-1.4.1.min.js"></script>
+
+<script>
+$(document).ready(function()
+{
+	//slides the element with class "menu_body" when paragraph with class "menu_head" is clicked 
+	$("#c-right h3.category-title").click(function()
+    {
+		$(this).next("div.shape-image-c").slideToggle(400).siblings("div.shape-image-c").slideUp("slow");
+		//console.log($(this));
+	});
+});
+</script>	
+<script>
+
+var camera, scene, renderer, control,control02;
+var ray = new THREE.Raycaster();
+var projector = new THREE.Projector();
+var pointerVector = new THREE.Vector3();
+
+var canHitObjects = [];
+init();
+animate();
+
+var s2stl; //stl导出对象
+var stlstr; //stl导出字符串
+var loader;
+var e2obj;
+var objstr;
+
+var plane;
+var cube,cylinder,pyramid;
+var meshCube,meshCubeHelp;
+var meshCylinder,meshCylinderHelp,meshPyramidHelp;
+var SELECTED_2D;
+var SELECTED_3D;
+var isMouseDown = false;
+var raycaster;
+var mouse2D, mouse3D = new THREE.Vector3();
+var voxelPosition = new THREE.Vector3(); //移动体的位置
+var intersector;
+var cubeMaterial;
+//var parent;
+var keyboard = new THREEx.KeyboardState(); 
+var stlLoader;
+var INTERSECTED;
+var offset = new THREE.Vector3();
+var TARGET = {  //定义选中目标对象
+	isFocus : false
+};
+
+var helpMesh , helpGeo;
+//var INTERSECTED ;
+var startPosition = {x : 0 , y: 0};
+var endPosition = {x : 0 , y : 0}
+var mouseMoveDis = 0;
+
+function init() {
+	mouse2D = new THREE.Vector3( 0, 10000, 0.5 );
+	s2stl = new THREE.STLExporter();
+
+	//CAMERA
+	camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 10000 );
+	camera.position.set( 0, 300, 800 );
+	//camera.lookAt( new THREE.Vector3( 0, 200, 0 ) );
+	//SCENE
+	scene = new THREE.Scene();
+
+	// GRID	
+	scene.add( new THREE.GridHelper( 500, 100 ) );  //添加帮助格子 (左右扩充500单位,每个格子间隔100单位);
+	plane = new THREE.Mesh( new THREE.PlaneGeometry( 20000, 20000, 20, 20 ), new THREE.MeshBasicMaterial( { color: 0x555555, wireframe: false ,transparent : true} ) );
+	plane.rotation.x = - Math.PI / 2;
+	plane.position.set( 0 , 0 ,0);
+	plane.visible = false;
+	plane.name = "plane";
+	scene.add( plane );
+
+	// LIGHT
+	var light = new THREE.DirectionalLight( 0xffffff,2 );
+	light.position.set( 1, 1, 1 );
+	scene.add( light );
+
+	//RENDERER
+	renderer = new THREE.WebGLRenderer({antialias:true});
+	renderer.sortObjects = false;
+	renderer.setSize( window.innerWidth, window.innerHeight );
+	//document.body.appendChild( renderer.domElement );
+
+	//CONTAINER
+	container = document.getElementById( 'view3d' );
+	container.appendChild( renderer.domElement );
+
+	//parent = new THREE.Geometry();
+
+	//模型加载器
+	stlLoader = new THREE.STLLoader();
+	loader = new THREE.JSONLoader();
+
+	//控制器
+	control = new THREE.TransformControls( camera, renderer.domElement ); //对鼠标右键的控制
+	control.addEventListener( 'change', render ); 
+
+	controls02 = new THREE.OrbitControls( camera,renderer.domElement);    //对鼠标点击事件的控制
+	controls02.addEventListener( 'change', render );
+	scene.add( control );     //将控制器添加到场景中
+
+	//绑定鼠标事件
+	renderer.domElement.addEventListener('mousemove' , onDocumentMouseMove , false);
+	//document.addEventListener('mousemove' , onDocumentMouseMove , false);
+	renderer.domElement.addEventListener( 'mousedown' , onDocumentMouseDown , false ); //不加renderer 鼠标中建不起作用
+	renderer.domElement.addEventListener( 'mouseup' , onDocumentMouseUp , false );
+	
+	window.addEventListener( 'resize', onWindowResize, false );
+	//绑定键盘事件
+	window.addEventListener( 'keydown', function ( event ) {
+		//console.log(event.which);
+		switch ( event.keyCode ) {
+		  case 81: // Q
+			//control.setSpace( control.space == "local" ? "world" : "local" );
+			break;
+		  case 87: // W
+			control.setMode( "translate" );
+			break;
+		  case 69: // E
+			control.setMode( "rotate" );
+			break;
+		  case 82: // R
+			control.setMode( "scale" );
+			break;
+		case 187:
+		case 107: // +,=,num+
+			control.setSize( control.size + 0.1 );
+			break;
+		case 189:
+		case 10: // -,_,num-
+			control.setSize( Math.max(control.size - 0.1, 0.1 ) );
+			break;
+		case 46:  //  Delete
+			if(TARGET){
+				scene.remove(TARGET.object );
+				control.detach(TARGET.object);
+				canHitObjects.pop(TARGET.object);
+			}
+			break;
+		default : 
+			break;
+		}            
+	});
+
+}
+
+function animate(){  //每帧执行一次
+	requestAnimationFrame( animate );
+	controls02.update();
+	
+	render();
+};
+function render() {
+
+	//keyEvent();
+	control.update();
+	//controls02.update();
+	raycaster = projector.pickingRay( mouse2D.clone(), camera );
+	var intersects = raycaster.intersectObject( plane );
+	if(SELECTED_2D){
+		//console.log(SELECTED_2D);
+		switch (SELECTED_2D.name){
+		case "but_legacy_01":
+			moveHelpGeo(helpMesh,intersects,0);
+			break;
+		case "but_legacy_02":
+			moveHelpGeo(helpMesh,intersects,0);
+			break;
+		case "but_legacy_03":
+			moveHelpGeo(helpMesh,intersects,0);
+			break;
+		case "but_legacy_04":
+			moveHelpGeo(helpMesh,intersects,0);
+			break;
+		default : 
+			break;
+		}
+
+	}
+	renderer.render( scene, camera );
+
+}
+
+//窗口改变事件
+function onWindowResize() {
+	camera.aspect = window.innerWidth / window.innerHeight;
+	camera.updateProjectionMatrix();
+	renderer.setSize( window.innerWidth, window.innerHeight );
+	render();
+}
+
+//鼠标按下事件 
+function onDocumentMouseDown( event ){ 
+	//console.log("onDocumentMouseDown");
+	event.preventDefault();
+	event.stopPropagation();
+	
+	//选中3D几何体
+	var pointer = event.touches? event.touches[0] : event;
+	var intersect = intersectObjects( pointer,canHitObjects); //与场景中的激活小部件的拾取物体的所有子对象相碰撞
+	if( intersect){ //如果鼠标按在了物体上
+		//intersect.object.material.color.setHex(0xff0000);
+		SELECTED_3D = intersect.object;  //选中的物体
+
+		var intersects = raycaster.intersectObject( plane );
+		offset.copy( intersects[0].point).sub( SELECTED_3D.position ); //?
+
+		//var intersect = intersectObjects( pointer, canHitObjects); //与场景中的激活小部件的拾取物体的所有子对象相碰撞
+		TARGET = intersect;
+		if(TARGET && !TARGET.isFocus){
+			control.attach( intersect.object );
+			TARGET.isFocus = true;
+		}	
+		//console.log(TARGET);
+	}
+	//control.attach( intersect.object );
+	//放下选中的2D几何体
+	if(SELECTED_2D){
+		switch (SELECTED_2D.name){
+		case "but_legacy_01":
+			addModel2Scene(helpGeo,helpMesh,"but_legacy_01_3d");
+			break;
+		case "but_legacy_02":
+			addModel2Scene(helpGeo,helpMesh,"but_legacy_02_3d");
+			break;
+		case "but_legacy_03":
+			addModel2Scene(helpGeo,helpMesh,"but_legacy_03_3d");
+			break;
+		case "but_legacy_04":
+			addModel2Scene(helpGeo,helpMesh,"but_legacy_04_3d");
+			break;
+		}
+	}
+
+}
+		
+//鼠标移动事件事件/
+function onDocumentMouseMove(event){ //2D页面鼠标按下没有放手 ， 3D页面监听不到鼠标移动
+	event.preventDefault();
+	console.log("onDocumentMouseMove");
+	endPosition.x = event.clientX;
+	endPosition.y = event.clientY;
+	mouse2D.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+    mouse2D.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+	//给场景中的交互体赋值
+	var intersects = raycaster.intersectObjects(scene.children); //射线和场景中所有的元素交//互,  intersects 存储了所有摄像碰撞的Object				
+	if(intersects.length > 0){ //INTERSECTED  碰撞的第一个物体;
+		if(INTERSECTED != intersects[0].object){ 
+			INTERSECTED = intersects[0].object;
+		}
+	}else {//没有任何碰撞
+		INTERSECTED = null;
+	}
+	//移动3D几何体
+	if(SELECTED_3D){
+		//console.log("选中了物体并移动");
+		var intersects = raycaster.intersectObject( plane );  //选中一个物体后  intersects.lenth = 1;
+		if(intersects[ 0 ]){
+			voxelPosition = intersects[ 0 ].point.sub(offset);
+			voxelPosition.y = SELECTED_3D.position.y;
+			SELECTED_3D.position.copy(voxelPosition);
+			//console.log(SELECTED_3D.position);
+		};
+		//plane.position.copy(SELECTED_3D.position); //设置平面位置
+		return;
+	}
+}
+//鼠标抬起事件
+function onDocumentMouseUp( event ){
+	event.preventDefault();
+
+	var dx = Math.abs(endPosition.x - startPosition.x)
+	//取消场景中的交互体
+	if( INTERSECTED){
+		SELECTED_3D = null;
+	}
+	//鼠标按下模型图片，并拖拽，距离大于200px ,即可加载该模型
+	if(SELECTED_2D && dx > 200){  
+		switch (SELECTED_2D.name){
+		case "but_legacy_01" :
+			addModel2Scene(helpGeo,helpMesh,"but_legacy_01_3d");
+			break;
+		case "but_legacy_02" :
+			addModel2Scene(helpGeo,helpMesh,"but_legacy_02_3d");
+			break;
+		case "but_legacy_03" :
+			addModel2Scene(helpGeo,helpMesh,"but_legacy_03_3d");
+			break;
+		case "but_legacy_04" :
+			addModel2Scene(helpGeo,helpMesh,"but_legacy_04_3d");
+			break;
+		}
+	}
+	//container.style.cursor = 'auto'; //默认光标
+}
+
+/*
+* 鼠标与场景中的几何体交互，
+* @p1 pointer  : event 鼠标事件
+* @p2 objects  : 交互对象们
+* return  有交互则返回第一个交互对象，没有则返回false
+*/
+function intersectObjects( pointer, objects ) {
+
+	var rect = renderer.domElement.getBoundingClientRect();
+	var x = (pointer.clientX - rect.left) / rect.width;
+	var y = (pointer.clientY - rect.top) / rect.height;
+	pointerVector.set( ( x ) * 2 - 1, - ( y ) * 2 + 1, 0.5 ); //屏幕上的点转换为世界坐标的点
+
+	projector.unprojectVector( pointerVector, camera ); //去掉两个端点
+	ray.set( camera.position, pointerVector.sub( camera.position ).normalize() ); //反射点，发射向量
+
+	var intersections = ray.intersectObjects( objects); //返回碰撞集合
+	//console.log(intersections);
+	return intersections[0] ? intersections[0] : false;
+}
+
+//点击模型图片,加载模型/
+$("#c-right .shape-image").each(function(index) {  					
+	$(this).mousedown(function(evt){
+		//url = this.src;
+		//console.log(this.id);
+		$(document).mousemove(function(e){
+			e.preventDefault();			
+		});
+		if(SELECTED_2D == null){
+			switch (this.id){
+				case "but_legacy_01":
+					//addHelpGeo2Scene("meshCube",meshCubeHelp,50,evt);
+					loader.load( "models/but_legacy_01.js",  function ( geometry, materials ){
+						helpMesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x77777, opacity: 0.3, transparent: true } ));
+						helpGeo = geometry;
+						addHelpGeo2Scene("but_legacy_01",helpMesh,0,evt);
+					});
+					break;
+				case "but_legacy_02":
+					//addHelpGeo2Scene("meshSylinder",meshSylinderHelp,50,evt);
+					loader.load( "models/but_legacy_02.js",  function ( geometry, materials ){
+						helpMesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x77777, opacity: 0.3, transparent: true } ));
+						helpGeo = geometry;
+						addHelpGeo2Scene("but_legacy_02",helpMesh,0,evt);
+					});
+					break;
+				case "but_legacy_03":
+					//addHelpGeo2Scene("meshPyramidHelp",meshPyramidHelp,0,evt);
+					loader.load( "models/but_legacy_03.js",  function ( geometry, materials ){
+						helpMesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x77777, opacity: 0.3, transparent: true } ));
+						helpGeo = geometry;
+						addHelpGeo2Scene("but_legacy_03",helpMesh,0,evt);
+					});
+					break;
+				case "but_legacy_04":
+					loader.load( "models/but_legacy_04.js",  function ( geometry, materials ){
+						helpMesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x77777, opacity: 0.3, transparent: true } ));
+						helpGeo = geometry;
+						addHelpGeo2Scene("but_legacy_04",helpMesh,0,evt);
+					});
+					break;
+				default : 
+					break;
+			}
+
+		}
+	});
+});
+/**添加帮助几何体到场景(跟随鼠标移动的透明集合体)
+*
+* @p1  helpName  : 几何体名称
+* @p2  helpMesh  : 几何体队形
+* @p3  helpY     : 在Y轴上的初始位置
+* @p4  evt       : 鼠标点击事件
+*/
+function addHelpGeo2Scene(helpName,helpMesh,helpY,evt){
+	var intersects = raycaster.intersectObjects( scene.children ); //与平面碰撞
+
+	startPosition.x = evt.clientX;
+	startPosition.y = evt.clientY;
+
+	voxelPosition.copy(intersects[0].point);
+	voxelPosition.y = helpY;
+
+	helpMesh.position.copy(voxelPosition);
+	
+	SELECTED_2D = helpMesh;
+	SELECTED_2D.name = helpName;
+	scene.add(helpMesh);
+}
+//移动帮助几何体
+function moveHelpGeo(helpMesh,intersects,dy){
+	//console.log("moveHelpGeo"); 
+	//console.log(intersects[0].point); //拖拽的时候不变(碰撞点不变)
+	setVoxelPosition( intersects,dy);
+	helpMesh.position = voxelPosition;
+}
+/*
+* @p1 加载的几何体
+* @p2 需要移除的帮助mesh
+* @p3 定义mesh的名字
+*/
+function addModel2Scene(geo,helpMesh,meshName){
+	//console.log("选中后放下meshPyramidHelp");
+	var voxel = new THREE.Mesh(geo, cubeMaterial );
+	voxel.position.copy( voxelPosition );
+	voxel.matrixAutoUpdate = true;
+	voxel.updateMatrix();
+	voxel.name = meshName;
+	//THREE.GeometryUtils.merge( parent, voxel );
+	scene.add( voxel );
+	scene.remove(helpMesh);
+	canHitObjects.push(voxel);
+	SELECTED_2D = null;
+}
+//导出stl
+document.getElementById("menu-edit").addEventListener('click' , function(){
+	//console.log("save");
+	//stlstr = "";
+	
+	var parent = new THREE.Geometry();
+	for(var i = 0 ; i < canHitObjects.length ; i++){
+		THREE.GeometryUtils.merge( parent, canHitObjects[i] );
+	}
+	var parentmesh = new THREE.Mesh( parent, new THREE.MeshBasicMaterial() );  //每次保存 ,parent的位置属性没有随着他的子物体移动而改变
+	console.log(parent);
+	s2stl.clearContent();
+	stlstr = s2stl.exportMesh(parentmesh);
+	//scene.add(parentmesh);
+	//console.log(parentmesh);
+	var blob = new Blob([stlstr], {type: "text/plain"});
+	saveAs(blob, "cube.stl");
+	//s2stl.clearContent();
+});
+
+//上传模型/
+function upModel(file){
+	console.log("upfile");
+	//var prevDiv = document.getElementById('preview');
+	if(file.files && file.files[0]){
+		var reader = new FileReader();
+		reader.onload = function(evt){
+			//prevDiv.innerHTML = '<img src = "'+evt.target.result+'"/>'
+			var data = evt.target.result;
+			//console.log(data);
+			var geometry = stlLoader.parse(data);  // TODO .....
+			//console.log(geometry);
+			var mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x77777, opacity: 1, transparent: false } ));
+			scene.add(mesh);
+			canHitObjects.push(mesh);
+		}
+		//reader.readAsDataURL(file.files[0]);
+		reader.readAsText(file.files[0]);
+	}
+}
+//设置几何体位置
+function setVoxelPosition( intersector,helpY ) {
+	voxelPosition.addVectors( intersector[0].point, new THREE.Vector3(0 , 0 ,0) );
+	voxelPosition.y = helpY;
+}
+
+//(弃用了)
+function getRealIntersector( intersects ) {
+
+	for( i = 0; i < intersects.length; i++ ) {
+		intersector = intersects[ i ];
+		if ( intersector.object != meshCubeHelp && intersector.object != meshSylinderHelp ) {
+			return intersector;
+		}
+	}
+	return null;
+
+}
+
+
+</script>
+
+</body>
+</html>
